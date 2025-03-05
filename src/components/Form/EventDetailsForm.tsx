@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "remixicon/fonts/remixicon.css";
-import EventServiceSelection from "./EventServiceSelection";
+import EventServiceSelection from "./EventServiceCategory";
 
 const EventDetailsForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [eventType, setEventType] = useState("");
@@ -29,20 +29,29 @@ const EventDetailsForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     if (location.length > 1) {
       axios
         .get(`http://localhost:5000/api/locations/search?query=${location}`)
-        .then((response) => {
-          setSuggestions(response.data);
-        })
+        .then((response) => setSuggestions(response.data))
         .catch((error) => console.error("Error fetching locations", error));
     } else {
       setSuggestions([]);
     }
   }, [location]);
 
+  const handleContinue = () => {
+    if (!eventType) {
+      alert("Please select an event type.");
+      return;
+    }
+    setShowServiceSelection(true);
+  };
+
   return (
     <>
       {showServiceSelection ? (
         <EventServiceSelection
           eventType={eventType}
+          location={location}
+          budgetMax={budgetMax}
+          guestMax={guestMax}
           onClose={onClose}
           onPrevious={() => setShowServiceSelection(false)}
         />
@@ -92,9 +101,7 @@ const EventDetailsForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     className="w-full outline-none bg-transparent"
                     placeholder="Preferred Location"
                     value={location}
-                    onChange={(e) => {
-                      setLocation(e.target.value);
-                    }}
+                    onChange={(e) => setLocation(e.target.value)}
                   />
                   {suggestions.length > 0 && (
                     <ul className="absolute left-0 top-10 w-full bg-white border rounded-lg shadow-md z-10 max-h-40 overflow-y-auto">
@@ -181,13 +188,7 @@ const EventDetailsForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <div className="flex justify-center pt-6">
                 <button
                   className="bg-black text-white py-3 px-10 rounded-lg w-auto"
-                  onClick={() => {
-                    if (eventType) {
-                      setShowServiceSelection(true);
-                    } else {
-                      alert("Please select an event type.");
-                    }
-                  }}
+                  onClick={handleContinue}
                 >
                   Continue Planning
                 </button>

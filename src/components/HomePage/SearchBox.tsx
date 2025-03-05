@@ -11,8 +11,8 @@ const SearchBox: React.FC = () => {
   const [suggestions, setSuggestions] = useState<
     { city: string; district: string }[]
   >([]);
-  const [error, setError] = useState(""); // State for error message
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to manage dropdown visibility
+  const [error, setError] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -64,16 +64,17 @@ const SearchBox: React.FC = () => {
       return;
     }
 
-    setError("");
+    setError(""); // Clear previous error
 
-    const params = new URLSearchParams({
-      ...(selectedServices.length > 0 && {
-        services: selectedServices.join(","),
-      }),
-      ...(location && { location }),
-    });
+    const params = new URLSearchParams();
 
-    navigate(`/SearchResults?${params.toString()}`);
+    if (eventType) params.append("eventType", eventType);
+    if (location) params.append("location", location);
+    if (selectedServices.length > 0) {
+      params.append("serviceCategory", selectedServices.join(","));
+    }
+
+    navigate(`/search-results?${params.toString()}`);
   };
 
   return (
@@ -90,10 +91,46 @@ const SearchBox: React.FC = () => {
           <option value="Wedding">Wedding</option>
           <option value="Birthday Party">Birthday Party</option>
           <option value="Corporate Event">Corporate Event</option>
-          <option value="Engagement">Engagement</option>
+          <option value="Get Together">Get Together</option>
+          <option value="Conference">Conference</option>
+          <option value="Other">Other</option>
         </select>
         <i className="ri-home-5-fill absolute right-3 top-1/2 transform -translate-y-1/2 text-black"></i>
         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      </div>
+
+      {/* Services Dropdown with Multiple Selection */}
+      <div className="relative w-full md:w-[220px]">
+        <div
+          className="bg-white text-black px-4 py-3 pr-10 rounded-md w-full focus:outline-none cursor-pointer flex justify-between items-center"
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        >
+          <span>
+            {selectedServices.length > 0
+              ? selectedServices.join(", ")
+              : "Select Services"}
+          </span>
+          <i className="ri-arrow-down-s-fill text-black"></i>
+        </div>
+
+        {isDropdownOpen && services.length > 0 && (
+          <ul className="absolute left-0 top-10 w-full bg-white border rounded-lg shadow-md z-10 max-h-40 overflow-y-auto">
+            {services.map((service) => (
+              <li
+                key={service.name}
+                className="px-4 py-2 flex items-center gap-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => toggleService(service.name)}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedServices.includes(service.name)}
+                  onChange={() => toggleService(service.name)}
+                />
+                <label className="text-black">{service.name}</label>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Location Input with Suggestions */}
@@ -119,39 +156,6 @@ const SearchBox: React.FC = () => {
               >
                 <span className="text-black">{suggestion.city + ","}</span>{" "}
                 <span className="text-black">{suggestion.district}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Services Dropdown with Multiple Selection */}
-      <div className="relative w-full md:w-[220px]">
-        <div
-          className="bg-white text-black px-4 py-3 pr-10 rounded-md w-full focus:outline-none cursor-pointer flex justify-between items-center"
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        >
-          <span>
-            {selectedServices.length > 0
-              ? selectedServices.join(", ")
-              : "Select Services"}
-          </span>
-          <i className="ri-arrow-down-s-fill text-black"></i>
-        </div>
-
-        {isDropdownOpen && services.length > 0 && (
-          <ul className="absolute left-0 top-10 w-full bg-white border rounded-lg shadow-md z-10 max-h-40 overflow-y-auto">
-            {services.map((service) => (
-              <li
-                key={service.name}
-                className="px-4 py-2 flex items-center gap-2 hover:bg-gray-100 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedServices.includes(service.name)}
-                  onChange={() => toggleService(service.name)}
-                />
-                <label className="text-black">{service.name}</label>
               </li>
             ))}
           </ul>

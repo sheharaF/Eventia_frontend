@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 interface Service {
   name: string;
@@ -9,15 +10,22 @@ interface EventServiceSelectionProps {
   eventType: string;
   onClose: () => void;
   onPrevious: () => void;
+  location: string;
+  budgetMax: string;
+  guestMax: string;
 }
 
 const EventServiceSelection: React.FC<EventServiceSelectionProps> = ({
   eventType,
   onClose,
   onPrevious,
+  location,
+  budgetMax,
+  guestMax,
 }) => {
   const [services, setServices] = useState<Service[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const navigate = useNavigate(); // useNavigate hook
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -60,6 +68,24 @@ const EventServiceSelection: React.FC<EventServiceSelectionProps> = ({
         ? prev.filter((name) => name !== serviceName)
         : [...prev, serviceName]
     );
+  };
+
+  const handleFindVendors = () => {
+    // Create query parameters dynamically, removing empty ones
+    const params: Record<string, string> = {};
+
+    if (eventType) params.eventType = eventType;
+    if (location) params.location = location;
+    if (budgetMax) params.price = budgetMax;
+    if (guestMax) params.capacity = guestMax;
+    if (selectedServices.length > 0)
+      params.serviceCategory = selectedServices.join(",");
+
+    // Convert params object to a query string
+    const queryString = new URLSearchParams(params).toString();
+
+    // Navigate with only the provided parameters
+    navigate(`/search-results?${queryString}`);
   };
 
   return (
@@ -129,7 +155,13 @@ const EventServiceSelection: React.FC<EventServiceSelectionProps> = ({
           >
             Previous
           </button>
-          <button className="bg-black text-white py-3 px-6 rounded-lg hover:bg-gray-800">
+          <button
+            className="bg-black text-white py-3 px-6 rounded-lg hover:bg-gray-800"
+            onClick={() => {
+              handleFindVendors(); // Trigger navigate when clicked
+              onClose(); // Close the popup
+            }}
+          >
             Find the vendors!
           </button>
         </div>

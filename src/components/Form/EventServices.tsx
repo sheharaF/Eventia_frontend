@@ -12,6 +12,8 @@ const EventServices: React.FC<EventServicesProps> = ({ selectedEventType }) => {
   }
 
   const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (selectedEventType) {
@@ -20,14 +22,26 @@ const EventServices: React.FC<EventServicesProps> = ({ selectedEventType }) => {
   }, [selectedEventType]);
 
   const fetchServices = async (eventType: string) => {
-    const data = await getEventServices(eventType);
-    setServices(data);
+    try {
+      setLoading(true);
+      const data = await getEventServices(eventType);
+      setServices(data);
+      setError("");
+    } catch (err) {
+      setError("Failed to load services");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div>
       <h2>Services for {selectedEventType}</h2>
-      {services.length > 0 ? (
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : services.length > 0 ? (
         <ul>
           {services.map((service, index) => (
             <li key={index}>
