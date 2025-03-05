@@ -63,6 +63,11 @@ const SearchResults: React.FC = () => {
     fetchResults();
   }, [eventType, location, price, capacity, serviceCategory]);
 
+  const handleAddToCart = (adId: string) => {
+    console.log(`Adding ad with ID: ${adId} to the cart.`);
+    // Add logic for adding to cart (e.g., updating state or making an API call)
+  };
+
   return (
     <div className="mt-28 px-6">
       <Navbar />
@@ -75,31 +80,41 @@ const SearchResults: React.FC = () => {
           {results.map((ad) => (
             <div
               key={ad._id}
-              className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 transition-transform hover:scale-105"
+              className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 transition-transform hover:scale-105"
             >
               {ad.images.length > 0 && (
+                // <img
+                //   src={ad.images[0]}
+                //   alt={ad.title}
+                //   className="w-full h-48 object-cover rounded-md mb-4"
+                // />
                 <img
-                  src={ad.images[0]}
-                  alt={ad.title}
-                  className="w-full h-48 object-cover rounded-md mb-3"
+                  src="src/assets/default.png"
+                  alt=""
+                  className="w-full h-48 object-cover rounded-md mb-4"
                 />
               )}
-              <h3 className="text-xl font-semibold text-gray-800">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-2">
                 {ad.title}
               </h3>
-              <p className="text-gray-600 text-sm mt-1">{ad.description}</p>
-              <p className="text-gray-700 mt-2">
-                📍 {ad.location.city}, {ad.location.district}
+              <p className="text-gray-600 text-sm mb-3">{ad.description}</p>
+              <p className="text-gray-700 text-lg">
+                <span className="font-semibold">Location:</span>{" "}
+                {ad.location.city}, {ad.location.district}
               </p>
-              <p className="text-gray-700 mt-1">
-                💰 Price:{" "}
-                <span className="font-medium">
-                  {ad.priceRange.min} - {ad.priceRange.max} LKR
-                </span>
+              <p className="text-gray-700 text-lg">
+                <span className="font-semibold">Price:</span>{" "}
+                {ad.priceRange.min} - {ad.priceRange.max} LKR
               </p>
-              <p className="text-gray-700 mt-1">
-                🎟️ Capacity: <span className="font-medium">{ad.capacity}</span>
+              <p className="text-gray-700 text-lg mb-4">
+                <span className="font-semibold">Capacity:</span> {ad.capacity}
               </p>
+              <button
+                onClick={() => handleAddToCart(ad._id)}
+                className="w-full py-2 px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-all duration-200"
+              >
+                Add to Cart
+              </button>
             </div>
           ))}
         </div>

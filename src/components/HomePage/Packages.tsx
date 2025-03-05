@@ -1,13 +1,25 @@
 import wedding from "../../assets/wedding.jpg";
 import birthday from "../../assets/bday.jpg";
 import corporate from "../../assets/corporate.jpg";
+import { useNavigate } from "react-router-dom";
 
 const Packages = () => {
   const packages = [
-    { title: "Weddings", image: wedding },
-    { title: "Birthday Parties", image: birthday },
-    { title: "Corporate Events", image: corporate },
+    { title: "Weddings", image: wedding, eventType: "Wedding" },
+    { title: "Birthday Parties", image: birthday, eventType: "Birthday Party" },
+    {
+      title: "Corporate Events",
+      image: corporate,
+      eventType: "Corporate Event",
+    },
   ];
+
+  const navigate = useNavigate();
+
+  // Navigate to package-results with the eventType as a query parameter
+  const handleViewPackages = (eventType: string) => {
+    navigate(`/package-results?eventType=${eventType}`);
+  };
 
   return (
     <div className="text-center py-12">
@@ -20,9 +32,12 @@ const Packages = () => {
               alt={pkg.title}
               className="rounded-tl-lg rounded-tr-lg"
             />
-            <h3 className="mt-2 font-bold">{pkg.title}</h3>
-            <button className="mt-4 mb-6 bg-yellow-500 px-4 py-2 rounded-lg">
-              See Vendors
+            <h3 className="mt-2 py-2 font-bold">{pkg.title}</h3>
+            <button
+              className="mt-4 mb-6 bg-yellow-500 px-4 py-2 rounded-lg"
+              onClick={() => handleViewPackages(pkg.eventType)}
+            >
+              View Packages
             </button>
           </div>
         ))}

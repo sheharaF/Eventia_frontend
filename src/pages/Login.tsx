@@ -1,8 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../api/auth";
-import { AuthResponse } from "../types/authTypes";
+import axios from "axios";
 import { FaUser, FaLock } from "react-icons/fa";
+
+interface AuthResponse {
+  token: string;
+  message: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    isApproved: boolean;
+  };
+}
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -10,16 +21,45 @@ const Login: React.FC = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Function to handle the login request
+  const login = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+      return response.data; // Returning the response data which includes the token and user details
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.error || "An error occurred during login"
+      );
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response: AuthResponse = await login({ email, password });
+
       if (response.token) {
+        // Store the token and role in localStorage
         localStorage.setItem("token", response.token);
-        localStorage.setItem("role", response.role || "");
-        navigate("/"); // Redirect to the main page or dashboard
+        console.log(response.token);
+        localStorage.setItem("role", response.user.role || "");
+
+        // Redirect user to the main page or dashboard after successful login
+        navigate("/");
       }
-    } catch (err) {
+    } catch (err: any) {
       setError("Invalid credentials. Please try again.");
     }
   };

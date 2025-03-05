@@ -76,7 +76,7 @@ const SignUp: React.FC = () => {
         const data = await response.json();
         if (response.ok) {
           localStorage.setItem("token", data.token); // Store token
-          navigate("/dashboard");
+          navigate("/");
         } else {
           setError(data.error || "Google authentication failed.");
         }
