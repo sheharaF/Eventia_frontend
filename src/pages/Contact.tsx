@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MapPin, Mail, Phone } from "lucide-react";
@@ -9,7 +15,9 @@ const Contact: React.FC = () => {
     <div className="container mx-auto px-4 py-10">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold mb-2">Contact Us</h1>
-        <p className="text-muted-foreground text-lg">We’d love to hear from you</p>
+        <p className="text-muted-foreground text-lg">
+          We’d love to hear from you
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -51,7 +59,9 @@ const Contact: React.FC = () => {
 
             <div>
               <p className="font-medium mb-1">Business Hours</p>
-              <p className="text-muted-foreground">Mon–Fri: 9:00 AM – 6:00 PM</p>
+              <p className="text-muted-foreground">
+                Mon–Fri: 9:00 AM – 6:00 PM
+              </p>
               <p className="text-muted-foreground">Sat: 9:00 AM – 1:00 PM</p>
               <p className="text-muted-foreground">Sun & Poya: Closed</p>
             </div>
@@ -61,7 +71,6 @@ const Contact: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>Send a Message</CardTitle>
-            <CardDescription>This is a sample form (static)</CardDescription>
           </CardHeader>
           <CardContent>
             <form
@@ -79,7 +88,9 @@ const Contact: React.FC = () => {
                 placeholder="How can we help?"
                 required
               />
-              <Button type="submit" className="w-full">Send</Button>
+              <Button type="submit" className="w-full">
+                Send
+              </Button>
             </form>
           </CardContent>
         </Card>
@@ -109,4 +120,3 @@ const Contact: React.FC = () => {
 };
 
 export default Contact;
-
