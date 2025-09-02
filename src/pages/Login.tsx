@@ -1,122 +1,156 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { FaUser, FaLock } from "react-icons/fa";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import api from "@/api/axios"; // your axios instance
 
-interface AuthResponse {
-  token: string;
-  message: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    isApproved: boolean;
-  };
-}
-
-const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Function to handle the login request
-  const login = async ({
-    email,
-    password,
-  }: {
-    email: string;
-    password: string;
-  }) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        {
-          email,
-          password,
-        }
-      );
-      return response.data; // Returning the response data which includes the token and user details
-    } catch (error: any) {
-      throw new Error(
-        error.response?.data?.error || "An error occurred during login"
-      );
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
     try {
-      const response: AuthResponse = await login({ email, password });
+      setLoading(true);
 
-      if (response.token) {
-        // Store the token and role in localStorage
-        localStorage.setItem("token", response.token);
-        console.log(response.token);
-        localStorage.setItem("role", response.user.role || "");
+      const res = await api.post("/api/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
 
-        // Redirect user to the main page or dashboard after successful login
+      const { token, user } = res.data;
+
+      // Save JWT + user session
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Redirect based on role
+      if (user.role === "Vendor") {
+        navigate("/vendor/dashboard");
+      } else if (user.role === "Admin") {
+        navigate("/admin/dashboard");
+      } else {
         navigate("/");
       }
     } catch (err: any) {
-      setError("Invalid credentials. Please try again.");
+      setError(err.response?.data?.error || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-[#fdf7f3]">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-[350px] border-2 border-yellow-500">
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-center border-b-2 pb-1">
-            <FaUser className="text-gray-500 mr-2" />
-            <input
-              type="email"
-              placeholder="Username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full outline-none"
-            />
-          </div>
-          <div className="flex items-center border-b-2 pb-1">
-            <FaLock className="text-gray-500 mr-2" />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full outline-none"
-            />
-          </div>
-          <div className="text-right">
-            <a
-              href="/forgot-password"
-              className="text-sm text-gray-600 hover:underline"
-            >
-              Forgot Password?
-            </a>
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-yellow-500 text-black font-bold py-2 rounded-lg hover:bg-yellow-600 transition"
-          >
-            Login
-          </button>
-        </form>
-        <p className="text-center text-sm mt-4">
-          Don't have an account?{" "}
-          <button
-            onClick={() => navigate("/signup")}
-            className="text-black font-semibold underline"
-          >
-            Sign Up
-          </button>
-        </p>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <main
+        className="flex-1 flex items-center justify-center py-12"
+        style={{ background: "var(--gradient-hero)" }}
+      >
+        <div className="w-full max-w-md">
+          <Card className="card-luxury">
+            <CardHeader className="text-center space-y-2">
+              <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
+              <CardDescription>Sign in to your Eventia account</CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Error message */}
+                {error && (
+                  <p className="text-red-500 text-sm text-center">{error}</p>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    className="form-select"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      className="form-select pr-10"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="btn-hero w-full"
+                  disabled={loading}
+                >
+                  {loading ? "Signing in..." : "Sign In"}
+                </Button>
+              </form>
+
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Don't have an account?{" "}
+                  <Link
+                    to="/register"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Sign up
+                  </Link>
+                </p>
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
     </div>
   );
 };
